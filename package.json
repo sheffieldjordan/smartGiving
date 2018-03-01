@@ -1,0 +1,22 @@
+{
+  "name": "smartgiving",
+  "version": "1.0.0",
+  "description": "Ethereum DApp to enable transparency and accountability in charitable giving",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sheffieldjordan/smartGiving.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sheffieldjordan/smartGiving/issues"
+  },
+  "homepage": "https://github.com/sheffieldjordan/smartGiving#readme",
+  "dependencies": {
+    "web3": "^1.0.0-beta.26"
+  }
+}
