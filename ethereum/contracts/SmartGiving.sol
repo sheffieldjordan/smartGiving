@@ -1,92 +1,112 @@
-pragma solidity 0.4.20;
+pragma solidity ^0.4.20;
 
-/* smartGiving deploys and manages the GiftFactory. This is what is made available
-to users on our website. Using this contract, donors call the 'createSmartGift'
-function, which instantiates a SmartGift contract for the Recipient to use. */
+/* smartGiving deploys and manages the GiftFactory.  Using this contract,
+a Merchant calls the 'createSmartGift'
+function, which instantiates a SmartGift contract for a Donor to fulfill.
+The front-end DApp will also call functions to update state*/
+
 contract GiftFactory {
+
     address[] public deployedSmartGifts;
-    address public currentDonor;
-    uint public nextGiftIndex = 0;
-   // uint gasCosts = 1000000; // << is there a way to use oracle for gas cost?
 
+    mapping(address => bool) giftFulfilled;
 
-    function createSmartGift(string _donorMsg, string _category, address _recipient)
-        public payable {
-            require(msg.value >= 1000001);
+    event DonationMade(address gift, address donor); // for event listening in JS
+
+    // _recipient comes from our database; totalCost is inputted by the Merchant
+    function createSmartGift(address _recipient, uint totalCost) public payable {
+
+            require(msg.value >= 1000000001); // for gas
+            require(msg.value >= totalCost + 1000000001);
+
             address newGift;
-            _recipient.transfer(1000000); // sent to Recipient for gas
 
-            newGift = new SmartGift(_donorMsg, _category, _recipient, msg.sender);
+            _recipient.transfer(1000000000); // pay gas to recipient to pay for their signature
+
+            newGift = new SmartGift(totalCost, _recipient, msg.sender);
             deployedSmartGifts.push(newGift);
-            currentDonor = msg.sender;
-            //transferMoney(); // << Gift wouldn't instatiate correctly with this
+    }
 
-    }
-    /* function to transfer the money to the Gift contract. Couldn't figure
-    out how to make this happen at instatiation time. Thoughts? */
-    function transferMoney() public {
-        require(msg.sender == currentDonor);
-        deployedSmartGifts[nextGiftIndex].transfer(address(this).balance);
-        nextGiftIndex++;
-        delete(currentDonor);
-    }
-    /* return an array of the addresses of the deployed Gifts */
+    // the front-end will call this to get an array of all smartGifts for display
     function returnDeployedGifts() public view returns(address[]) {
         return deployedSmartGifts;
     }
 
-    function getBalance() public view returns(uint){
-        return address(this).balance;
+    // this can be used to query fulfillment status if the Event Listener fails
+    function checkFulfillment(address _gift) public view returns(bool){
+        bool donationStatus = SmartGift(_gift).donationExecuted();
+        return donationStatus;
+    }
+
+    // the SmartGift calls this to update the fulfillment status mapping
+    function updateFulfillmentMapping(address _gift, bool status, address _donor) external returns(bool){
+        SmartGift smartGift = SmartGift(_gift);
+        require(_donor == smartGift.donorCheck());
+        giftFulfilled[_gift] = status;
+        DonationMade(_gift, _donor);
+        return giftFulfilled[_gift];
+    }
+
+    function () public {
+        revert();
     }
 }
 
-
+/* contract for SmartGift is below; Merchants pay to deploy this. The front-end
+makes the donate() function available to potential donors, and the recipientSign()
+available to the Recipient */
 
 contract SmartGift {
     address public donor;
     address public recipient;
     address public merchant;
+    address public parentFactory;
 
-    string public donorMsg; // or a struct
-    string category;
-    bool public transferToMerchant;
+    uint public donationAmt;
+    uint public expirationDate;
+
+    bool public donationExecuted;
     bool public recipientSigned;
-
-    /*approvedMerchants will be moved to another contract*/
-    mapping(address => bool) public approvedMerchants;
 
     modifier recipientOnly() {
         require(msg.sender == recipient);
         _;
     }
-    /* creates the SmartGift, indicates the donor's message, the donor,
-    and the recipient. approvedMerchants will be moved to a separate contract
-    managed by smartGiving. Also need to figure out how to manage category. */
-    function SmartGift(string _donorMsg, string _category, address _recipient, address _donor) public payable {
-        donor = _donor;
-        donorMsg = _donorMsg;
+
+    // this is called by the Factory on behalf of the Merchant to instantiate the Gift.
+    function SmartGift(uint totalCost, address _recipient, address _merchant) public payable {
+        donationAmt =  totalCost;
         recipient = _recipient;
-        category = _category;
-        approvedMerchants[0x583031d1113ad414f02576bd6afabfb302140225] = true;
-    }
-    /* recipient transfers the money to the merchant.
-    Merchant has to be on approved list */
-    function transferToMerchant(address _merchant) public recipientOnly returns(bool) {
-        require(address(this).balance !=0);
-        require(approvedMerchants[_merchant] = true);
-        _merchant.transfer(address(this).balance);
-        transferToMerchant = true;
-        return true;
-    }
-    /* recipeint signs to confirm he's received the goods and continue using
-    our site to make requests */
-    function recipientSign() public recipientOnly returns(bool){
-        recipientSigned = true;
-    }
-    /* check that the ether transfer happened from the donor to the Gift contract */
-    function getBalance() public view returns(uint){
-        return address(this).balance;
+        merchant = _merchant;
+        expirationDate = now + 30 days;
+        parentFactory = msg.sender;
+
+        }
+
+    // the Donor call this; it updates the fulfillment status in Factory
+    function donate() public payable returns(bool) {
+        require(msg.value == donationAmt * 1000000000000000000);
+        donor = msg.sender;
+        donationExecuted = true;
+        GiftFactory giftFactory = GiftFactory(parentFactory);
+        giftFactory.updateFulfillmentMapping(this, true, msg.sender);
+
+        return donationExecuted;
     }
 
-    function() public payable {}
+    // recipient signs this to continue using the platform. What do we do about lost private keys?
+    function recipientSign() public recipientOnly returns(bool){
+        recipientSigned = true;
+        return recipientSigned;
+    }
+
+    /* this is called by Factory to do input validation, to ensure only
+    valid addresses call the updateFulfillmentMapping */
+    function donorCheck() public view returns(address) {
+        return donor;
+    }
+
+    function() public {
+        revert();
+    }
 }
