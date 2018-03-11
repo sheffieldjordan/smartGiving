@@ -21,3 +21,4 @@ const deploy = async () => {
 	console.log('SmartGift Factory deployed to', result.options.address)
 }
 deploy()
+// 0xA61218A1A54466b36854d6E7b675125F27AE45Fb
