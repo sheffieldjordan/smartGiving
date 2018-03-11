@@ -9,7 +9,7 @@ contract GiftFactory {
 
     address[] public deployedSmartGifts;
 
-    mapping(address => bool) giftFulfilled;
+    mapping(address => bool) public giftFulfilled;
 
     event DonationMade(address gift, address donor); // for event listening in JS
 
@@ -17,7 +17,6 @@ contract GiftFactory {
     function createSmartGift(address _recipient, uint totalCost) public payable {
 
             require(msg.value >= 1000000001); // for gas
-            require(msg.value >= totalCost + 1000000001);
 
             address newGift;
 
@@ -85,7 +84,7 @@ contract SmartGift {
 
     // the Donor call this; it updates the fulfillment status in Factory
     function donate() public payable returns(bool) {
-        require(msg.value == donationAmt * 1000000000000000000);
+        require(msg.value == donationAmt);
         donor = msg.sender;
         donationExecuted = true;
         GiftFactory giftFactory = GiftFactory(parentFactory);
