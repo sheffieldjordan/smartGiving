@@ -2,8 +2,9 @@ pragma solidity 0.4.21;
 
 contract GiftFactory {
 
-    address[] outstandingGifts;
-    address[] completedGifts;
+    address[] public completedGifts;
+
+    mapping(address => bool) public giftExists;
 
     event GiftCreated(address gift, address recipient, uint expiry);
     event DonorSetsPrice(address gift, address donor, uint price);
@@ -13,16 +14,11 @@ contract GiftFactory {
     event ItemDelivered(address gift, uint time);
 
 
-    function createSmartGift(uint _expiry) public returns(uint, address){
+    function createSmartGift(uint _expiry) public returns(address){
         address newGift;
-        uint id;
         newGift = new SmartGift(msg.sender, _expiry);
-        id = outstandingGifts.push(newGift);
-        return (id, newGift);
-    }
-
-    function returnOutstandingGifts() public view returns(address[]) {
-        return outstandingGifts;
+        giftExists[newGift] = true;
+        return newGift;
     }
 
     // functions below enable the Gift to call the Factory Events. Our app will
@@ -52,6 +48,7 @@ contract GiftFactory {
 
     function itemDelivered(address _gift, uint time) public {
         emit ItemDelivered(_gift, time);
+        completedGifts.push(_gift);
     }
 }
 
@@ -76,6 +73,11 @@ contract SmartGift {
 
     modifier recipientOnly() {
         require(msg.sender == recipient);
+        _;
+    }
+
+    modifier donorOnly() {
+        require(msg.sender == donor);
         _;
     }
 
@@ -129,6 +131,19 @@ contract SmartGift {
         itemDelivered = true;
         giftFactory.itemShipped(address(this), now);
     }
+
+    function recoverExtra() public donorOnly {
+        require(merchant != 0); // if true, merchant payment has been made.
+        donor.transfer(address(this).balance);
+    }
+
+    function carryOver(address targetGift, string _donorMsg) public donorOnly {
+        require(merchant != 0);
+        SmartGift newGift;
+        newGift = SmartGift(targetGift);
+        newGift.donorSetsMaxPrice.value(address(this).balance)(_donorMsg); // donor sends his leftover money to a new Gift.
+    }
+
 
     function getGiftStats() public view returns (
         address,
