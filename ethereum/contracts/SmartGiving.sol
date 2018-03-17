@@ -1,182 +1,160 @@
-pragma solidity ^0.4.20;
-
-/* smartGiving deploys and manages the GiftFactory.  Using this contract,
-a Recipient calls the 'createSmartGift'
-function, which instantiates a SmartGift contract for the merchant to bid on and
-a Donor to fulfill.
-The front-end DApp will also call functions to update Gift and Factory state*/
+pragma solidity 0.4.21;
 
 contract GiftFactory {
 
-    address[] public deployedSmartGifts;
-    // RecipientGiftTracker[] recipientGifts;
+    address[] outstandingGifts;
+    address[] completedGifts;
 
-    mapping(address => address[]) recipientGiftStore;
-    // mapping(address => RecipientGiftTracker[]) public recipientGiftStore;
-    mapping(address => address[]) donorGiftStore;
-    mapping(address => address[]) merchantGiftStore;
-    mapping(address => bool) public giftFulfilled;
-
-    struct RecipientGiftTracker {
-        address giftAddress;
-        bool giftStatus;
-    }
-
-    event DonationMade(address gift, address donor); // for event listening in JS
+    event GiftCreated(address gift, address recipient, uint expiry);
+    event DonorSetsPrice(address gift, address donor, uint price);
+    event MerchantBids(address gift, address merchant, uint bid);
+    event DonationMade(address gift, address merchant, uint price); // happens right after Recipient clicks "Select Merchant"
+    event ItemShipped(address gift, uint time);
+    event ItemDelivered(address gift, uint time);
 
 
-    /* _recipient creates a smartGift with inputs: suggested sales price, expiry date.
-    If no expiry provided, browser can provide X days as default*/
-    function createSmartGift(uint _suggestedCost, uint expiry) public payable returns(address){
-
+    function createSmartGift(uint _expiry) public returns(uint, address){
         address newGift;
-
-        newGift = new SmartGift(_suggestedCost, msg.sender, expiry);
-
-        deployedSmartGifts.push(newGift);
-
-        //xxx RecipientGiftTracker memory newGiftEntry = RecipientGiftTracker({
-        //   xxx  giftAddress: newGift,
-        // xxx    giftStatus: false
-        // xxx });
-        // requests.push(newRequest);
-        // recipientGiftStore[msg.sender].push(RecipientGiftTracker(newGift, false));
-        recipientGiftStore[msg.sender].push(newGift);
-        return newGift;
+        uint id;
+        newGift = new SmartGift(msg.sender, _expiry);
+        id = outstandingGifts.push(newGift);
+        return (id, newGift);
     }
 
-    // the front-end will call this to get an array of all smartGifts for display
-    function returnDeployedGifts() public view returns(address[]) {
-        return deployedSmartGifts;
+    function returnOutstandingGifts() public view returns(address[]) {
+        return outstandingGifts;
     }
 
-    // the browser will call this when the Recipient browses to smartgift.io/profile/giftstore
-    // function returnGiftStore() public view returns(address[]) {
-        // return recipientGiftStore[msg.sender];
-    // }
+    // functions below enable the Gift to call the Factory Events. Our app will
+    // have listeners pointed at the Factory (not at individual Gifts).
+    // If you want stats from an individual gift, you can call that gift's
+    // getGiftStats( ) function.
 
-    // this can be used to query fulfillment status if the Event Listener fails
-    function checkFulfillment(address _gift) public view returns(bool){
-        bool donationStatus = SmartGift(_gift).donationExecuted();
-        return donationStatus;
+    function giftCreated(address _gift, address _owner, uint _expiry) public {
+        emit GiftCreated(_gift, _owner, _expiry);
     }
 
-    // the SmartGift calls this to update the fulfillment status mapping
-    function updateFulfillmentMapping(address _gift, bool status, address _donor) external returns(bool){
-        SmartGift smartGift = SmartGift(_gift);
-        require(_donor == smartGift.donorCheck());
-        giftFulfilled[_gift] = status;
-        emit DonationMade(_gift, _donor);
-        return giftFulfilled[_gift];
+    function donorSetsMaxPrice(address _gift, address _donor, uint _value) public {
+        emit DonorSetsPrice(_gift, _donor, _value);
     }
 
-    function () public {
-        revert();
+    function merchantBids(address _gift, address _merchant, uint _bid) public {
+        emit MerchantBids(_gift, _merchant, _bid);
+    }
+
+    function donationMade(address _gift, address _merchant, uint price) public {
+        emit DonationMade(_gift, _merchant, price);
+    }
+
+    function itemShipped(address _gift, uint time) public {
+        emit ItemShipped(_gift, time);
+    }
+
+    function itemDelivered(address _gift, uint time) public {
+        emit ItemDelivered(_gift, time);
     }
 }
 
-/* contract for SmartGift is below; Merchants pay to deploy this. The front-end
-makes the donate() function available to potential donors, and the recipientSign()
-available to the Recipient */
-
 contract SmartGift {
-    address public donor;
-    address public recipient;
-    address public merchant;
+    address recipient;
+    address donor;
+    address merchant;
+    uint maxPrice;
+    uint lowestBid;
+    uint expiry;
+    uint bidderCount;
+    uint finalCost;
+    bool itemShipped;
+    bool itemDelivered;
+    string donorMsg;
+
     address public parentFactory;
-    address[7] public merchantList; // seven is the maximum number of bids
+    GiftFactory giftFactory;
 
-    uint public donationAmt;
-    uint public expirationDate;
-    uint public bidderCount;
-
-    bool public donationExecuted;
-    bool public recipientSigned;
-    bool public recipientReportsDeliveryFailure;
-
-    mapping(address => uint) public merchantBids;
+    mapping(address => uint) merchantsToBids;
+    mapping(uint => address) bidAmounts;
 
     modifier recipientOnly() {
         require(msg.sender == recipient);
         _;
     }
-    event MaxBiddersReached(address gift, uint time);
 
-    // this is called by the Factory on behalf of the Recipient to instantiate the Gift.
-    function SmartGift(uint totalCost, address _recipient, uint expiry) public payable {
-        donationAmt =  totalCost;
-        recipient = _recipient;
-        expirationDate = now + expiry;
-        parentFactory = msg.sender;
+    function SmartGift(address _owner, uint _expiry) public {
+        recipient = _owner;
+        expiry = _expiry;
+        giftFactory = GiftFactory(msg.sender);
+        giftFactory.giftCreated(address(this), _owner, _expiry);
 
-        }
-
-    // Merchant clls the bid function
-    function bid(uint bidAmount) public payable returns(bool){
-        require(bidderCount <= 7);
-        require(msg.value >= 1000000001); // for gas
-        for (uint i = 0; i < merchantList.length; i++) {
-            if (merchantList[i] == 0) {
-                merchantBids[msg.sender] = bidAmount;
-                merchantList[bidderCount] = msg.sender;
-                bidderCount += 1;
-                return true;
-            }
-        }
     }
 
-
-    // recipient selects merchant
-    function selectMerchant(address selectedMerchant) public recipientOnly {
-        require(merchantBids[selectedMerchant] != 0);
-        merchant = selectedMerchant;
-    }
-
-    // the Donor call this; it updates the fulfillment status in Factory
-    function donate() public payable returns(bool) {
-        require(msg.value == donationAmt * 1000000000000000000);
-        require(merchant != 0);
-        require(!donationExecuted);
-        require(now < expirationDate);
-
+    function donorSetsMaxPrice(string _donorMsg) public payable {
+        require(msg.value > 0);
         donor = msg.sender;
-        merchant.transfer(msg.value);
-        donationExecuted = true;
-        GiftFactory giftFactory = GiftFactory(parentFactory);
-        giftFactory.updateFulfillmentMapping(this, true, msg.sender);
+        donorMsg = _donorMsg;
+        maxPrice = msg.value;
+        giftFactory.donorSetsMaxPrice(address(this), msg.sender, msg.value);
 
-        return donationExecuted;
     }
 
-    // recipient signs this to continue using the platform. What do we do about lost private keys?
-    function recipientSign() public recipientOnly returns(bool){
-        recipientSigned = true;
-        return recipientSigned;
-    }
-    // enables recipient to articulate delivery failure
-    function recipientReportsDeliveryFailure() public recipientOnly returns(address){
-        recipientReportsDeliveryFailure = true;
-        return merchant; // we could add this to a 'probation' array
-    }
-
-    // merchant calls this to remove bid
-    function removeBid() public {
-        merchantBids[msg.sender] = 0;
-        for (uint i = 0; i < merchantList.length; i++) {
-            if (merchantList[i] == msg.sender) {
-                delete merchantList[i];
-                bidderCount -= 1;
-            }
+    function merchantBids(uint _bid) public payable { // in Web3, the merchant's input must be converted into Wei
+        require(_bid > 0);
+        require(msg.value >= 1000000001);
+        require(msg.sender != recipient && msg.sender != donor);
+        require(bidAmounts[_bid] != 0); // "Sorry, someone has already bid that amount. Try bidding lower. The current lowest bid is ${lowestBid}. Try to beat it!"
+        recipient.transfer(1000000001);
+        if (lowestBid == 0) {
+            lowestBid = _bid;
         }
+        if (lowestBid > _bid) {
+            lowestBid = _bid;
+            }
+        giftFactory.merchantBids(address(this), msg.sender, _bid);
+        merchantsToBids[msg.sender] = _bid;
     }
 
-    /* this is called by Factory to do input validation, to ensure only
-    valid addresses call the updateFulfillmentMapping */
-    function donorCheck() public view returns(address) {
-        return donor;
+    function recipientPicksMerchant(address _merchant) public recipientOnly {
+        merchant = _merchant;
+        finalCost = merchantsToBids[merchant];
+        merchant.transfer(finalCost);
+        giftFactory.donationMade(address(this), _merchant, finalCost);
     }
 
-    function() public {
-        revert();
+    function merchantShipsItem() public {
+        require(msg.sender == merchant);
+        itemShipped = true;
+        giftFactory.itemShipped(address(this), now);
     }
+
+    function recipientReceivesItem() public recipientOnly {
+        itemDelivered = true;
+        giftFactory.itemShipped(address(this), now);
+    }
+
+    function getGiftStats() public view returns (
+        address,
+        address,
+        address,
+        uint,
+        uint,
+        uint,
+        uint,
+        uint,
+        bool,
+        bool,
+        string
+        ) {
+            return (
+                recipient,
+                donor,
+                merchant,
+                maxPrice,
+                lowestBid,
+                finalCost,
+                expiry,
+                bidderCount,
+                itemShipped,
+                itemDelivered,
+                donorMsg
+                );
+        }
 }
