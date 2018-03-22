@@ -4,7 +4,7 @@ This tells the DApp how to interact with the Network
 
 import Web3 from 'web3'
 
-const web3 = new Web3(window.web3.currentProvider)
+// let web3 = new Web3(window.web3.currentProvider)
 
 let web3
 

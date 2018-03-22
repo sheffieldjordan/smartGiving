@@ -6,40 +6,39 @@ import web3 from '../../ethereum/web3'
 import { Link, Router } from '../../routes'
 
 class GiftNew extends Component {
-  state = {
-    donorMSg: '',
-    category: '',
-    recipient: '':
-  }
+	state = {
+		expiration: '',
+		recipient: ''
+	}
 
-  onSubmit = async (event) => {
-    event.preventDefault()
-    this.setState({ loading: true, errorMessage: '' })
+	onSubmit = async (event) => {
+		event.preventDefault()
+		this.setState({ loading: true, errorMessage: '' })
 
-    try {
-      const accounts = await web3.eth.getAccounts()
-      await factory.methods.createSmartGift(this.state.donorMsg, this.state.category, this.state.recipient).send({
-        from:accounts[0]
-      })
+		try {
+			const accounts = await web3.eth.getAccounts()
+			await factory.methods
+				.createSmartGift(this.state.expiration * 24 * 60 * 60)
+				.send({
+					from: accounts[0]
+				})
 
-      Router.pushRoute('/')
-    } catch (err) {
-      this.setState({errorMessage: err.message})
-    }
-    this.setState({ loading: false })
-  }
+			Router.pushRoute('/')
+		} catch (err) {
+			this.setState({ errorMessage: err.message })
+		}
+		this.setState({ loading: false })
+	}
 
-  render() {
-    return (
-      <Layout>
-        <Form>
-          <Form.Field>
-            <Input>
-
-            </Input>
-          </Form.Field>
-        </Form>
-      </Layout>
-    )
-  }
+	render() {
+		return (
+			<Layout>
+				<Form>
+					<Form.Field>
+						<Input />
+					</Form.Field>
+				</Form>
+			</Layout>
+		)
+	}
 }

@@ -1,10 +1,25 @@
-pragma solidity 0.4.21;
+pragma solidity ^0.4.21;
 
 contract GiftFactory {
 
     address[] public completedGifts;
 
     mapping(address => bool) public giftExists;
+
+    mapping(uint => address) public giftToOwner;
+
+    mapping(address => uint) public recipientGiftCount;
+    mapping(address => uint) public donorGiftCount;
+    mapping(address => uint) public merchantGiftCount;
+
+    struct Gift {
+      address location;
+      string donorMsg;
+      bool completed;
+      uint expiry;
+    }
+
+    Gift[] gifts;
 
     event GiftCreated(address gift, address recipient, uint expiry);
     event DonorSetsPrice(address gift, address donor, uint price);
@@ -14,10 +29,13 @@ contract GiftFactory {
     event ItemDelivered(address gift, uint time);
 
 
-    function createSmartGift(uint _expiry) public returns(address){
+    function createSmartGift(uint32 _expiry) public returns(address){
         address newGift;
         newGift = new SmartGift(msg.sender, _expiry);
         giftExists[newGift] = true;
+        uint id = gifts.push(Gift(newGift,"",false, _expiry));
+        giftToOwner[id] = msg.sender;
+        recipientGiftCount[msg.sender]++;
         return newGift;
     }
 
@@ -49,6 +67,18 @@ contract GiftFactory {
     function itemDelivered(address _gift, uint time) public {
         emit ItemDelivered(_gift, time);
         completedGifts.push(_gift);
+    }
+
+    function getGiftsByRecipient(address _recipient) external view returns(address[]) {
+        address[] memory result = new address[](recipientGiftCount[_recipient]);
+        uint counter = 0;
+        for (uint i = 0; i < gifts.length -1; i++) {
+            if (giftToOwner[i] == _recipient) {
+                result[counter] = gifts[i].location;  //??
+                counter++;
+            }
+        }
+        return result;
     }
 }
 

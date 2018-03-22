@@ -1,3 +1,6 @@
+/* If you try to deploy and get 'unhandled promise rejection warning', try
+increasing the gas costs. I started at 1000000 */
+
 const HDWalletProvider = require('truffle-hdwallet-provider')
 const Web3 = require('web3')
 const compiledFactory = require('./build/GiftFactory.json')
@@ -15,7 +18,7 @@ const deploy = async () => {
 		JSON.parse(compiledFactory.interface)
 	)
 		.deploy({ data: compiledFactory.bytecode })
-		.send({ gas: '1000000', from: accounts[0] })
+		.send({ gas: '2000000', from: accounts[0] })
 
 	console.log(compiledFactory.interface)
 	console.log('SmartGift Factory deployed to', result.options.address)
