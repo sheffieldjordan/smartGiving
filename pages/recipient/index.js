@@ -6,20 +6,6 @@ import { Link } from '../../routes'
 import SmartGift from '../../ethereum/smartgift'
 import GiftRow from '../../components/GiftRow'
 
-// export default () => {
-// 	return <h1>These are the Recipient's Gifts!</h1>
-// }
-/* IGNORE THESE NOTES: Redefine the above functional-Component to a Class-Based-Component
-That enables us to access lifecycle method componentDidMount(), which
-is a great place to load up data inside of a React Component. Once we load the
-data, we can render it out to the user. So class based component below:
-... but componentDidMount() is not executed on the server when you use NextJS, so
-we have to use getInitialProps() instead (also a LC Method, but used exclusively
-by NextJS).
-static keyword assigns this method to the Class itself, and you don't need an
-instance to call the function that follows it.
-Next wants to get data without rendering it.*/
-
 class RecipientGiftIndex extends Component {
 	static async getInitialProps() {
 		/* creates an array of the Gifts Addresses for Receipient 0xfaa7541...*/
@@ -56,10 +42,6 @@ class RecipientGiftIndex extends Component {
 		})
 	}
 
-	//My React Notes (IGNORE): You always have to render out JSX in a render method. If you don't you'll
-	//get an error. Whever Next imports a file, Next.js always expects you to export()
-	//a React Component, or it throws error. It's not enough to define it.  So always
-	//create a render(Return(JSX)) function and always make an epxort default statement when testing.
 	render() {
 		const { Header, Row, HeaderCell, Body } = Table
 		return (
