@@ -2,3 +2,4 @@ node_modules
 SmartGivingUpdate.sol
 SmartGiving_DonorModel.sol
 .next
+recipientCreatesContractDonorMaxPrice.sol
