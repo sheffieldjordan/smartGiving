@@ -4,10 +4,6 @@ contract GiftFactory {
 
     address[] public completedGifts;
 
-    address public nextGift;
-    address public nextRecipient;
-    address public currentDonor;
-
     mapping(address => bool) public giftExists;
 
     mapping(uint => address) public giftToOwner;
@@ -32,36 +28,31 @@ contract GiftFactory {
     event ItemShipped(address gift, uint time);
     event ItemDelivered(address gift, uint time);
 
-
     function createSmartGift(address _recipient, uint32 _expiry, string _donorMsg) public payable returns(address){
-        address newGift;
-
-        newGift = new SmartGift(_recipient, msg.sender, _expiry, _donorMsg);
-        giftExists[newGift] = true;
-
-        uint id = gifts.push(Gift(newGift, _donorMsg,false, _expiry));
-        giftToOwner[id-1] = _recipient;
-        recipientGiftCount[_recipient]++;
-        donorGiftCount[msg.sender]++;
-
-        nextGift = newGift;
-
-        // nextGift.transfer(address(this).balance); // doesn't work within this function for some reason
-        currentDonor = msg.sender; // instead set these variables to call donate() below
-        nextRecipient = _recipient;
-
+        require(msg.value > 1000000);
+        address newGift = (new SmartGift).value(msg.value)(_recipient, msg.sender, _expiry, _donorMsg);
+        _updateMasterStats(newGift, msg.sender, _recipient, _expiry, _donorMsg);
         return newGift;
     }
 
-    function donate() public payable returns (uint){
-        require(msg.sender == currentDonor);
-        nextGift.transfer(msg.value - 1000000);
-        nextRecipient.transfer(999999);
-        SmartGift(nextGift).setMaxPrice();
-
-        return msg.value;
+    function createRolloverGift(address _recipient, address _donor, uint32 _expiry, string _donorMsg) external payable returns(address) {
+        require(msg.value > 1000000);
+        address newGift = (new SmartGift).value(msg.value)(_recipient, _donor, _expiry, _donorMsg);
+        _updateMasterStats(newGift, _donor, _recipient, _expiry, _donorMsg);
+        return newGift;
     }
 
+    function _updateMasterStats(address _newGift, address _donor, address _recipient, uint32 _expiry, string _donorMsg) internal returns(bool) {
+        giftExists[_newGift] = true;
+        uint id = gifts.push(Gift(_newGift, _donorMsg, false, _expiry)) - 1;
+        giftToOwner[id] = _recipient;
+        recipientGiftCount[_recipient]++;
+        donorGiftCount[_donor]++;
+    }
+
+    function _updateMerchantStats(address _merchant) internal {
+        merchantGiftCount[_merchant]++;
+    }
 
     function checkBalance() public view returns(uint){
         return address(this).balance;
@@ -85,6 +76,7 @@ contract GiftFactory {
 
     function donationMade(address _gift, address _merchant, uint price) public {
         emit DonationMade(_gift, _merchant, price);
+        _updateMerchantStats(_merchant);
     }
 
     function itemShipped(address _gift, uint time) public {
@@ -113,8 +105,9 @@ contract SmartGift {
     address recipient;
     address donor;
     address merchant;
-    uint public maxPrice; //= address(this).balance;
+    uint maxPrice; //= address(this).balance;
     uint lowestBid;
+    uint creationTime;
     uint expiry;
     uint bidderCount;
     uint finalCost;
@@ -138,29 +131,20 @@ contract SmartGift {
         _;
     }
 
-    function SmartGift(address _owner, address _donor, uint _expiry, string _donorMsg) public payable{
+    function SmartGift(address _owner, address _donor, uint32 _expiry, string _donorMsg) public payable{
         recipient = _owner;
         donor = _donor;
         expiry = _expiry;
         donorMsg = _donorMsg;
+        maxPrice = msg.value -1000000;
+        creationTime = now;
         giftFactory = GiftFactory(msg.sender);
+        recipient.transfer(1000000); // gas money
         giftFactory.giftCreated(address(this), _owner, _expiry);
     }
 
     function checkBalance() public view returns(uint){
         return address(this).balance;
-    }
-
-    function setMaxPrice() external {
-        maxPrice = address(this).balance;
-    }
-
-    function donorSetsMaxPrice(string _donorMsg) public payable {
-        require(msg.value > 0);
-        donor = msg.sender;
-        donorMsg = _donorMsg;
-        maxPrice = msg.value;
-        giftFactory.donorSetsMaxPrice(address(this), msg.sender, msg.value);
     }
 
     function merchantBids(uint _bid) public { // in Web3, the merchant's input must be converted into Wei
@@ -201,11 +185,11 @@ contract SmartGift {
         donor.transfer(address(this).balance);
     }
 
-    function carryOver(address targetGift, string _donorMsg) public donorOnly {
+    function carryOver(address _rolloverRecipient, uint32 _rolloverExpiry, string _donorMsg) public payable donorOnly returns(address){
         require(merchant != 0);
-        SmartGift newGift;
-        newGift = SmartGift(targetGift);
-        newGift.donorSetsMaxPrice.value(address(this).balance)(_donorMsg); // donor sends his leftover money to a new Gift.
+        address newGift = giftFactory.createRolloverGift.value(address(this).balance)(_rolloverRecipient, msg.sender, _rolloverExpiry, _donorMsg);
+
+        return newGift;
     }
 
 
@@ -213,6 +197,7 @@ contract SmartGift {
         address,
         address,
         address,
+        uint,
         uint,
         uint,
         uint,
@@ -230,6 +215,7 @@ contract SmartGift {
                 lowestBid,
                 finalCost,
                 expiry,
+                creationTime,
                 bidderCount,
                 itemShipped,
                 itemDelivered,
