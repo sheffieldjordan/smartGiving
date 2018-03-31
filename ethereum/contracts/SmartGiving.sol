@@ -24,7 +24,7 @@ contract GiftFactory {
     event GiftCreated(address gift, address recipient, uint expiry);
     event DonorSetsPrice(address gift, address donor, uint price);
     event MerchantBids(address gift, address merchant, uint bid);
-    event DonationMade(address gift, address merchant, uint price); // happens right after Recipient clicks "Select Merchant"
+    event MerchantPaid(address gift, address merchant, uint price); // happens right after Recipient clicks "Select Merchant"
     event ItemShipped(address gift, uint time);
     event ItemDelivered(address gift, uint time);
 
@@ -70,22 +70,23 @@ contract GiftFactory {
         emit DonorSetsPrice(_gift, _donor, _value);
     }
 
-    function merchantBids(address _gift, address _merchant, uint _bid) public {
+    function merchantBids(address _gift, address _merchant, uint _bid) external {
         emit MerchantBids(_gift, _merchant, _bid);
     }
 
-    function donationMade(address _gift, address _merchant, uint price) public {
-        emit DonationMade(_gift, _merchant, price);
+    function merchantPaid(address _gift, address _merchant, uint price) external {
+        emit MerchantPaid(_gift, _merchant, price);
         _updateMerchantStats(_merchant);
     }
 
-    function itemShipped(address _gift, uint time) public {
+    function itemShipped(address _gift, uint time) external {
         emit ItemShipped(_gift, time);
     }
 
-    function itemDelivered(address _gift, uint time) public {
-        emit ItemDelivered(_gift, time);
+    function itemDelivered(address _gift, uint time) external {
         completedGifts.push(_gift);
+        emit ItemDelivered(_gift, time);
+
     }
 
     function getGiftsByRecipient(address _recipient) external view returns(address[]) {
@@ -115,11 +116,10 @@ contract SmartGift {
     bool itemDelivered;
     string donorMsg;
 
-    address public parentFactory;
     GiftFactory giftFactory;
 
     mapping(address => uint) merchantsToBids;
-    mapping(uint => address) bidAmounts;
+    mapping(uint => address) public bidAmounts;
 
     modifier recipientOnly() {
         require(msg.sender == recipient);
@@ -150,7 +150,9 @@ contract SmartGift {
     function merchantBids(uint _bid) public { // in Web3, the merchant's input must be converted into Wei
         require(_bid > 0);
         require(msg.sender != recipient && msg.sender != donor);
-        require(bidAmounts[_bid] == 0); // "Sorry, someone has already bid that amount. Try bidding lower. The current lowest bid is ${lowestBid}. Try to beat it!"
+        require(bidAmounts[_bid] == 0x0); // "Sorry, someone has already bid that amount. Try bidding lower. The current lowest bid is ${lowestBid}. Try to beat it!"
+        require(finalCost == 0);
+        bidAmounts[_bid] = msg.sender;
         if (lowestBid == 0) {
             lowestBid = _bid;
         }
@@ -163,10 +165,11 @@ contract SmartGift {
     }
 
     function recipientPicksMerchant(address _merchant) public recipientOnly {
+        require(merchantsToBids[merchant] > 0);
         merchant = _merchant;
         finalCost = merchantsToBids[merchant];
         merchant.transfer(finalCost);
-        giftFactory.donationMade(address(this), _merchant, finalCost);
+        giftFactory.merchantPaid(address(this), _merchant, finalCost);
     }
 
     function merchantShipsItem() public {
@@ -178,6 +181,7 @@ contract SmartGift {
     function recipientReceivesItem() public recipientOnly {
         itemDelivered = true;
         giftFactory.itemShipped(address(this), now);
+
     }
 
     function recoverExtra() public donorOnly {
