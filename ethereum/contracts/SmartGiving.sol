@@ -3,6 +3,8 @@ pragma solidity ^0.4.21;
 contract GiftFactory {
 
     address[] public completedGifts;
+    address[] public masterGiftList;
+    uint public lastUpdate;
 
     mapping(address => bool) public giftExists;
 
@@ -48,6 +50,7 @@ contract GiftFactory {
         giftToOwner[id] = _recipient;
         recipientGiftCount[_recipient]++;
         donorGiftCount[_donor]++;
+        masterGiftList.push(_newGift);
     }
 
     function _updateMerchantStats(address _merchant) internal {
@@ -66,26 +69,27 @@ contract GiftFactory {
         emit GiftCreated(_gift, _owner, _expiry);
     }
 
-    function donorSetsMaxPrice(address _gift, address _donor, uint _value) public {
-        emit DonorSetsPrice(_gift, _donor, _value);
-    }
-
     function merchantBids(address _gift, address _merchant, uint _bid) external {
+        lastUpdate = now;
         emit MerchantBids(_gift, _merchant, _bid);
     }
 
     function merchantPaid(address _gift, address _merchant, uint price) external {
         emit MerchantPaid(_gift, _merchant, price);
         _updateMerchantStats(_merchant);
+        lastUpdate = now;
     }
 
     function itemShipped(address _gift, uint time) external {
         emit ItemShipped(_gift, time);
+        lastUpdate = now;
     }
 
     function itemDelivered(address _gift, uint time) external {
         completedGifts.push(_gift);
         emit ItemDelivered(_gift, time);
+        lastUpdate = now;
+
 
     }
 
@@ -109,6 +113,7 @@ contract SmartGift {
     uint maxPrice; //= address(this).balance;
     uint lowestBid;
     uint creationTime;
+    uint lastUpdate;
     uint expiry;
     uint bidderCount;
     uint finalCost;
@@ -118,7 +123,7 @@ contract SmartGift {
 
     GiftFactory giftFactory;
 
-    mapping(address => uint) merchantsToBids;
+    mapping(address => uint) public merchantsToBids;
     mapping(uint => address) public bidAmounts;
 
     modifier recipientOnly() {
@@ -162,26 +167,33 @@ contract SmartGift {
         bidderCount++;
         giftFactory.merchantBids(address(this), msg.sender, _bid);
         merchantsToBids[msg.sender] = _bid;
+
+        lastUpdate = now;
     }
 
     function recipientPicksMerchant(address _merchant) public recipientOnly {
-        require(merchantsToBids[merchant] > 0);
+        require(merchantsToBids[_merchant] > 0);
         merchant = _merchant;
         finalCost = merchantsToBids[merchant];
         merchant.transfer(finalCost);
         giftFactory.merchantPaid(address(this), _merchant, finalCost);
+
+        lastUpdate = now;
     }
 
     function merchantShipsItem() public {
         require(msg.sender == merchant);
         itemShipped = true;
         giftFactory.itemShipped(address(this), now);
+
+        lastUpdate = now;
     }
 
     function recipientReceivesItem() public recipientOnly {
         itemDelivered = true;
         giftFactory.itemShipped(address(this), now);
 
+        lastUpdate = now;
     }
 
     function recoverExtra() public donorOnly {
@@ -207,6 +219,7 @@ contract SmartGift {
         uint,
         uint,
         uint,
+        uint,
         bool,
         bool,
         string
@@ -219,6 +232,7 @@ contract SmartGift {
                 lowestBid,
                 finalCost,
                 expiry,
+                lastUpdate,
                 creationTime,
                 bidderCount,
                 itemShipped,
