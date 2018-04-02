@@ -17,9 +17,11 @@ class GiftRow extends Component {
 				<Cell>{gift[5]}</Cell>
 				<Cell>{gift[6]}</Cell>
 				<Cell>{gift[7]}</Cell>
-				<Cell>{gift[8].toString()}</Cell>
-				<Cell>{gift[9].toString()}</Cell>
-				<Cell>{gift[10].valueOf()}</Cell>
+				<Cell>{gift[8]}</Cell>
+				<Cell>{gift[9]}</Cell>
+				<Cell>{gift[10].toString()}</Cell>
+				<Cell>{gift[11].toString()}</Cell>
+				<Cell>{gift[12].valueOf()}</Cell>
 			</Row>
 		)
 	}
