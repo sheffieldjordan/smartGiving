@@ -30,6 +30,10 @@ var _react2 = _interopRequireDefault(_react);
 
 var _semanticUiReact = require('semantic-ui-react');
 
+var _web = require('../ethereum/web3');
+
+var _web2 = _interopRequireDefault(_web);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var _jsxFileName = '/Users/Morgan/Documents/smartGiving/components/GiftRow.js';
@@ -57,74 +61,84 @@ var GiftRow = function (_Component) {
 			return _react2.default.createElement(Row, {
 				__source: {
 					fileName: _jsxFileName,
-					lineNumber: 9
+					lineNumber: 10
 				}
 			}, _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
-					lineNumber: 10
+					lineNumber: 11
 				}
 			}, id), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
-					lineNumber: 11
+					lineNumber: 12
 				}
 			}, giftAddress.slice(0, 9), '...'), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
-					lineNumber: 12
+					lineNumber: 13
 				}
 			}, gift[0].slice(0, 9), '...'), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
-					lineNumber: 13
+					lineNumber: 14
 				}
 			}, gift[1].slice(0, 9), '...'), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
-					lineNumber: 14
+					lineNumber: 15
 				}
 			}, gift[2].slice(0, 9), '...'), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
-					lineNumber: 15
-				}
-			}, gift[3]), _react2.default.createElement(Cell, {
-				__source: {
-					fileName: _jsxFileName,
 					lineNumber: 16
 				}
-			}, gift[4]), _react2.default.createElement(Cell, {
-				__source: {
-					fileName: _jsxFileName,
-					lineNumber: 17
-				}
-			}, gift[5]), _react2.default.createElement(Cell, {
-				__source: {
-					fileName: _jsxFileName,
-					lineNumber: 18
-				}
-			}, gift[6]), _react2.default.createElement(Cell, {
+			}, _web2.default.utils.fromWei(gift[3], 'ether').slice(0, 5) + ' ether'), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
 					lineNumber: 19
 				}
-			}, gift[7]), _react2.default.createElement(Cell, {
+			}, gift[4]), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
 					lineNumber: 20
 				}
-			}, gift[8].toString()), _react2.default.createElement(Cell, {
+			}, gift[5]), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
 					lineNumber: 21
 				}
-			}, gift[9].toString()), _react2.default.createElement(Cell, {
+			}, gift[6]), _react2.default.createElement(Cell, {
 				__source: {
 					fileName: _jsxFileName,
 					lineNumber: 22
 				}
-			}, gift[10].valueOf()));
+			}, gift[7]), _react2.default.createElement(Cell, {
+				__source: {
+					fileName: _jsxFileName,
+					lineNumber: 23
+				}
+			}, gift[8]), _react2.default.createElement(Cell, {
+				__source: {
+					fileName: _jsxFileName,
+					lineNumber: 24
+				}
+			}, gift[9]), _react2.default.createElement(Cell, {
+				__source: {
+					fileName: _jsxFileName,
+					lineNumber: 25
+				}
+			}, gift[10].toString()), _react2.default.createElement(Cell, {
+				__source: {
+					fileName: _jsxFileName,
+					lineNumber: 26
+				}
+			}, gift[11].toString()), _react2.default.createElement(Cell, {
+				__source: {
+					fileName: _jsxFileName,
+					lineNumber: 27
+				}
+			}, gift[12].valueOf()));
 		}
 	}]);
 
@@ -132,4 +146,4 @@ var GiftRow = function (_Component) {
 }(_react.Component);
 
 exports.default = GiftRow;
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImNvbXBvbmVudHMvR2lmdFJvdy5qcyJdLCJuYW1lcyI6WyJSZWFjdCIsIkNvbXBvbmVudCIsIlRhYmxlIiwiR2lmdFJvdyIsIlJvdyIsIkNlbGwiLCJwcm9wcyIsImlkIiwiZ2lmdCIsImdpZnRBZGRyZXNzIiwic2xpY2UiLCJ0b1N0cmluZyIsInZhbHVlT2YiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsQUFBTyxBQUFTOzs7O0FBQ2hCLEFBQVM7Ozs7Ozs7SUFFSCxBOzs7Ozs7Ozs7OzsyQkFDSTtPQUFBLEFBQ0EsTUFEQSxBQUNjLHVCQURkLEFBQ0E7T0FEQSxBQUNLLE9BREwsQUFDYyx1QkFEZCxBQUNLO2dCQUNxQixLQUYxQixBQUUrQjtPQUYvQixBQUVBLFlBRkEsQUFFQTtPQUZBLEFBRUksY0FGSixBQUVJO09BRkosQUFFVSxxQkFGVixBQUVVLEFBQ2xCOzswQkFDRSxjQUFEOztlQUFBO2lCQUFBLEFBQ0M7QUFERDtBQUFBLElBQUEsa0JBQ0UsY0FBRDs7ZUFBQTtpQkFBQSxBQUFPO0FBQVA7QUFBQSxNQURELEFBQ0MsQUFDQSxxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLGtCQUFPLEFBQVksTUFBWixBQUFrQixHQUF6QixBQUFPLEFBQXFCLElBRjdCLEFBRUMsQUFDQSx3QkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBQU8sQUFBSyxHQUFMLEFBQVEsTUFBUixBQUFjLEdBQXJCLEFBQU8sQUFBaUIsSUFIekIsQUFHQyxBQUNBLHdCQUFDLGNBQUQ7O2VBQUE7aUJBQUEsQUFBTztBQUFQO0FBQUEsV0FBTyxBQUFLLEdBQUwsQUFBUSxNQUFSLEFBQWMsR0FBckIsQUFBTyxBQUFpQixJQUp6QixBQUlDLEFBQ0Esd0JBQUMsY0FBRDs7ZUFBQTtpQkFBQSxBQUFPO0FBQVA7QUFBQSxXQUFPLEFBQUssR0FBTCxBQUFRLE1BQVIsQUFBYyxHQUFyQixBQUFPLEFBQWlCLElBTHpCLEFBS0MsQUFDQSx3QkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBTkQsQUFNQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBUEQsQUFPQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBUkQsQUFRQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBVEQsQUFTQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBVkQsQUFVQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBQU8sQUFBSyxHQVhiLEFBV0MsQUFBTyxBQUFRLEFBQ2YsNkJBQUMsY0FBRDs7ZUFBQTtpQkFBQSxBQUFPO0FBQVA7QUFBQSxXQUFPLEFBQUssR0FaYixBQVlDLEFBQU8sQUFBUSxBQUNmLDZCQUFDLGNBQUQ7O2VBQUE7aUJBQUEsQUFBTztBQUFQO0FBQUEsV0FBTyxBQUFLLElBZGQsQUFDQyxBQWFDLEFBQU8sQUFBUyxBQUdsQjs7Ozs7QUFyQm9CLEEsQUF3QnRCOztrQkFBQSxBQUFlIiwiZmlsZSI6IkdpZnRSb3cuanMiLCJzb3VyY2VSb290IjoiL1VzZXJzL01vcmdhbi9Eb2N1bWVudHMvc21hcnRHaXZpbmcifQ==
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImNvbXBvbmVudHMvR2lmdFJvdy5qcyJdLCJuYW1lcyI6WyJSZWFjdCIsIkNvbXBvbmVudCIsIlRhYmxlIiwid2ViMyIsIkdpZnRSb3ciLCJSb3ciLCJDZWxsIiwicHJvcHMiLCJpZCIsImdpZnQiLCJnaWZ0QWRkcmVzcyIsInNsaWNlIiwidXRpbHMiLCJmcm9tV2VpIiwidG9TdHJpbmciLCJ2YWx1ZU9mIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLEFBQU8sQUFBUzs7OztBQUNoQixBQUFTOztBQUNULEFBQU8sQUFBVTs7Ozs7Ozs7O0lBRVgsQTs7Ozs7Ozs7Ozs7MkJBQ0k7T0FBQSxBQUNBLE1BREEsQUFDYyx1QkFEZCxBQUNBO09BREEsQUFDSyxPQURMLEFBQ2MsdUJBRGQsQUFDSztnQkFDcUIsS0FGMUIsQUFFK0I7T0FGL0IsQUFFQSxZQUZBLEFBRUE7T0FGQSxBQUVJLGNBRkosQUFFSTtPQUZKLEFBRVUscUJBRlYsQUFFVSxBQUNsQjs7MEJBQ0UsY0FBRDs7ZUFBQTtpQkFBQSxBQUNDO0FBREQ7QUFBQSxJQUFBLGtCQUNFLGNBQUQ7O2VBQUE7aUJBQUEsQUFBTztBQUFQO0FBQUEsTUFERCxBQUNDLEFBQ0EscUJBQUMsY0FBRDs7ZUFBQTtpQkFBQSxBQUFPO0FBQVA7QUFBQSxrQkFBTyxBQUFZLE1BQVosQUFBa0IsR0FBekIsQUFBTyxBQUFxQixJQUY3QixBQUVDLEFBQ0Esd0JBQUMsY0FBRDs7ZUFBQTtpQkFBQSxBQUFPO0FBQVA7QUFBQSxXQUFPLEFBQUssR0FBTCxBQUFRLE1BQVIsQUFBYyxHQUFyQixBQUFPLEFBQWlCLElBSHpCLEFBR0MsQUFDQSx3QkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBQU8sQUFBSyxHQUFMLEFBQVEsTUFBUixBQUFjLEdBQXJCLEFBQU8sQUFBaUIsSUFKekIsQUFJQyxBQUNBLHdCQUFDLGNBQUQ7O2VBQUE7aUJBQUEsQUFBTztBQUFQO0FBQUEsV0FBTyxBQUFLLEdBQUwsQUFBUSxNQUFSLEFBQWMsR0FBckIsQUFBTyxBQUFpQixJQUx6QixBQUtDLEFBQ0Esd0JBQUMsY0FBRDs7ZUFBQTtpQkFBQSxBQUNFO0FBREY7QUFBQSxvQkFDRSxBQUFLLE1BQUwsQUFBVyxRQUFRLEtBQW5CLEFBQW1CLEFBQUssSUFBeEIsQUFBNEIsU0FBNUIsQUFBcUMsTUFBckMsQUFBMkMsR0FBM0MsQUFBOEMsS0FQakQsQUFNQyxBQUNxRCxBQUVyRCwyQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBVEQsQUFTQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBVkQsQUFVQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBWEQsQUFXQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBWkQsQUFZQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBYkQsQUFhQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBZEQsQUFjQyxBQUFPLEFBQUssQUFDWixxQkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBQU8sQUFBSyxJQWZiLEFBZUMsQUFBTyxBQUFTLEFBQ2hCLDZCQUFDLGNBQUQ7O2VBQUE7aUJBQUEsQUFBTztBQUFQO0FBQUEsV0FBTyxBQUFLLElBaEJiLEFBZ0JDLEFBQU8sQUFBUyxBQUNoQiw2QkFBQyxjQUFEOztlQUFBO2lCQUFBLEFBQU87QUFBUDtBQUFBLFdBQU8sQUFBSyxJQWxCZCxBQUNDLEFBaUJDLEFBQU8sQUFBUyxBQUdsQjs7Ozs7QUF6Qm9CLEEsQUE0QnRCOztrQkFBQSxBQUFlIiwiZmlsZSI6IkdpZnRSb3cuanMiLCJzb3VyY2VSb290IjoiL1VzZXJzL01vcmdhbi9Eb2N1bWVudHMvc21hcnRHaXZpbmcifQ==

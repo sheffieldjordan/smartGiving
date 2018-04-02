@@ -10,7 +10,7 @@ class RecipientGiftIndex extends Component {
 	static async getInitialProps() {
 		/* creates an array of the Gifts Addresses for Receipient 0xfaa7541...*/
 		let recipientGifts = await factory.methods
-			.getGiftsByRecipient('0xfaa7541c5cbe22e4518736d2b5fc34d07347ee45')
+			.getGiftsByRecipient('0x68009930D2E4a9A0A4b53484AED8289c86802Ae5')
 			.call()
 		recipientGifts = recipientGifts.filter(
 			(address) => address !== '0x0000000000000000000000000000000000000000'
@@ -64,6 +64,8 @@ class RecipientGiftIndex extends Component {
 							<HeaderCell>Lowest Bid</HeaderCell>
 							<HeaderCell>Final Price</HeaderCell>
 							<HeaderCell>Expiry</HeaderCell>
+							<HeaderCell>Last Update</HeaderCell>
+							<HeaderCell>Creation Time</HeaderCell>
 							<HeaderCell>Bidder Count</HeaderCell>
 							<HeaderCell>Item Shipped</HeaderCell>
 							<HeaderCell>Item Delivered</HeaderCell>

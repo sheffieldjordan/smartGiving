@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Table } from 'semantic-ui-react'
+import web3 from '../ethereum/web3'
 
 class GiftRow extends Component {
 	render() {
@@ -12,7 +13,9 @@ class GiftRow extends Component {
 				<Cell>{gift[0].slice(0, 9)}...</Cell>
 				<Cell>{gift[1].slice(0, 9)}...</Cell>
 				<Cell>{gift[2].slice(0, 9)}...</Cell>
-				<Cell>{gift[3]}</Cell>
+				<Cell>
+					{web3.utils.fromWei(gift[3], 'ether').slice(0, 5) + ' ether'}
+				</Cell>
 				<Cell>{gift[4]}</Cell>
 				<Cell>{gift[5]}</Cell>
 				<Cell>{gift[6]}</Cell>

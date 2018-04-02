@@ -17,7 +17,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /* This file exists so the DApp can get access to our deployed instance of giftFactory
 without having to import web3 into a Component everytime or something */
 
-var factoryInstance = new _web2.default.eth.Contract(JSON.parse(_GiftFactory2.default.interface), '0x4a493754a087AEbeC15ec619a95a87a8fd2628C5' // there's Gift Factory deployed on Rinkeby at this address
+var factoryInstance = new _web2.default.eth.Contract(JSON.parse(_GiftFactory2.default.interface), '0x49D5C34464f4398A598D3D9e9d973fEB9966a485' // there's Gift Factory deployed on Rinkeby at this address
 );
 
 exports.default = factoryInstance;
