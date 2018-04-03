@@ -39,11 +39,6 @@ class Donate extends Component {
 					gas: 1000000
 				})
 
-			console.log('Transaction Complete')
-			console.log('gift information', this.state.giftInstance) // this is nothing because the state hasn't been re-set
-
-			console.log('gift+++', giftInstance.events.GiftCreated) // this is an Object that gets returned above in the try block
-			// console.log('gift++++', giftInstance.events.GiftCreated['0']) // this is undefined!
 			this.setState({
 				giftInstance: giftInstance.events.GiftCreated.returnValues['0'],
 				message: `You've created a Gift for ${
