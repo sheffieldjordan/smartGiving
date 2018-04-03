@@ -4,7 +4,7 @@ const routes = require('next-routes')() //so it returns a funciton which will be
 routes
 	.add('/campaigns/new', '/campaigns/new')
 	.add('/campaigns/:address', '/campaigns/show')
-	.add('/:address', '/recipient')
+	// .add('/:address', '/recipient')
 	.add('/campaigns/:address/requests', '/campaigns/requests/index')
 	.add('/campaigns/:address/requests/new', '/campaigns/requests/new')
 
