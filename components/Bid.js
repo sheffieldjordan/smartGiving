@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 
 import web3 from '../ethereum/web3'
 import SmartGift from '../ethereum/smartgift'
-import { Router } from '../routes' /* importing the Router property from routes.js
- so we can refresh the page after a contribution has been made*/
 
 class Bid extends Component {
 	constructor(props) {
@@ -19,28 +17,6 @@ class Bid extends Component {
 			recipientMessage: '[Message from MongoDB]'
 		}
 	}
-	// static async getInitialProps() {
-	// 	let giftAddress = 0xf7277a10450f61ac86fdcdeb9b14f001888aa78d // can come from props.query.address in url or Mongo DB
-	// 	let recipientaddress = '[Address from MongoDB]'
-	// 	let recipientMessage = '[Message from MongoDB]'
-	// 	let targetGift = SmartGift(giftAddress)
-	//
-	// 	let lowestBid = await targetGift.methods.lowestBid().call() // async call to Blockchain. Can come from Mongo too.
-	//
-	// 	return {
-	// 		bid: '',
-	// 		lowestBid: 'morgan',
-	// 		errorMessage: '',
-	// 		loading: false,
-	// 		message: '',
-	// 		giftaddress: giftAddress,
-	// 		recipientAddress: recipientAddress,
-	// 		recipientMessage: recipientMessage
-	// 	}
-
-	// async componentWillMount() {
-	// 	this.setState({ lowestBid: async () => await smartgift.methods })
-	// }
 
 	onSubmit = async (event) => {
 		var x = document.forms['bidForm']['bidField'].value
