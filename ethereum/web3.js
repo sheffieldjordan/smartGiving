@@ -3,6 +3,7 @@ This tells the DApp how to interact with the Network
 */
 
 import Web3 from 'web3'
+// const Web3 = require('web3')
 
 // let web3 = new Web3(window.web3.currentProvider)
 
@@ -21,3 +22,4 @@ if (typeof window !== 'undefined' && window.web3 !== 'undefined') {
 }
 
 export default web3
+// module.exports = web3

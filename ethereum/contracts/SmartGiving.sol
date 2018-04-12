@@ -51,6 +51,7 @@ contract GiftFactory {
         recipientGiftCount[_recipient]++;
         donorGiftCount[_donor]++;
         masterGiftList.push(_newGift);
+        lastUpdate = now;
     }
 
     function _updateMerchantStats(address _merchant) internal {
@@ -110,13 +111,18 @@ contract SmartGift {
     address recipient;
     address donor;
     address merchant;
+    address[] biddersList;
+
     uint maxPrice; //= address(this).balance;
     uint lowestBid;
     uint creationTime;
     uint lastUpdate;
+    uint timeShipped;
+    uint timeReceived;
     uint expiry;
     uint bidderCount;
     uint finalCost;
+    uint[] bidList;
     bool itemShipped;
     bool itemDelivered;
     string donorMsg;
@@ -165,6 +171,8 @@ contract SmartGift {
             lowestBid = _bid;
             }
         bidderCount++;
+        biddersList.push(msg.sender);
+        bidList.push(_bid);
         giftFactory.merchantBids(address(this), msg.sender, _bid);
         merchantsToBids[msg.sender] = _bid;
 
@@ -185,14 +193,14 @@ contract SmartGift {
         require(msg.sender == merchant);
         itemShipped = true;
         giftFactory.itemShipped(address(this), now);
-
+        timeShipped = now;
         lastUpdate = now;
     }
 
     function recipientReceivesItem() public recipientOnly {
         itemDelivered = true;
         giftFactory.itemShipped(address(this), now);
-
+        timeReceived = now;
         lastUpdate = now;
     }
 
@@ -240,6 +248,10 @@ contract SmartGift {
                 donorMsg
                 );
         }
+    function getGiftStats2() view public returns(address[], uint[], uint, uint) {
+        return (biddersList, bidList, timeShipped, timeReceived);
+    }
+
     function() public payable{
         return;
     }

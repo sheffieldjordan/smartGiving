@@ -16,6 +16,7 @@ class Donate extends Component {
 		recipientMessage: ''
 	}
 	async componentDidMount() {}
+
 	onSubmit = async (event) => {
 		event.preventDefault()
 		this.setState({

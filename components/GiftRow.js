@@ -16,8 +16,8 @@ class GiftRow extends Component {
 				<Cell>
 					{web3.utils.fromWei(gift[3], 'ether').slice(0, 5) + ' ether'}
 				</Cell>
-				<Cell>{gift[4]}</Cell>
-				<Cell>{gift[5]}</Cell>
+				<Cell>{web3.utils.fromWei(gift[4], 'ether') + ' ether'}</Cell>
+				<Cell>{web3.utils.fromWei(gift[5], 'ether') + ' ether'}</Cell>
 				<Cell>{gift[6]}</Cell>
 				<Cell>{gift[7]}</Cell>
 				<Cell>{gift[8]}</Cell>
