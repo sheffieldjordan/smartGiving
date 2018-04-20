@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Button, Card, Input, Container } from "semantic-ui-react";
 import web3 from "../../ethereum/web3";
 import SmartGift from "../../ethereum/smartgift";
 import Layout from "../../components/Layout";
@@ -47,22 +48,35 @@ class ItemReceived extends Component {
   render() {
     return (
       <Layout>
+        <link
+          rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css"
+        />
         <div className="item-received">
-          <div>
-            <h2>Your SmartGift has been shipped!</h2>
-            <h3>
-              After receiving the item, please update the SmartGift Contract
-              status below. Please leave any relevant comments too.
-            </h3>
-            <p>
-              This is required to continue using the SmartGiving platform and to
-              maintain your Recipient Reputation.
-            </p>
+          <Card fluid>
+            <Card.Content header={"Your SmartGift has been shipped!"} />
+            <Card.Content
+              header={
+                "After receiving the item, please update the SmartGift Contract status below. Please leave any relevant comments too."
+              }
+              description={
+                "This is required to continue using the SmartGiving platform and to maintain your Recipient Reputation."
+              }
+            />
+          </Card>
+          <Button positive onClick={() => this.itemReceived()}>
+            Item Received
+          </Button>
+          <Button.Group>
+            <Button negative onClick={() => this.itemMissing()}>
+              Item Missing
+            </Button>
+            <Button.Or />
+            <Button negative onClick={() => this.itemDamaged()}>
+              Item Damaged
+            </Button>
+          </Button.Group>
 
-            <button onClick={() => this.itemReceived()}>Item Received</button>
-            <button onClick={() => this.itemMissing()}>Item Missing</button>
-            <button onClick={() => this.itemDamaged()}>Item Damaged</button>
-          </div>
           <p>{this.state.errorMessage}</p>
           <h3>{this.state.message}</h3>
         </div>

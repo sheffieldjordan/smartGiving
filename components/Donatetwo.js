@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Card } from "semantic-ui-react";
+import { Button, Card, Input, Container } from "semantic-ui-react";
 import web3 from "../ethereum/web3";
 import factory from "../ethereum/factory";
 
@@ -52,71 +52,60 @@ class Donate extends Component {
 
     this.setState({ loading: false, value: "" });
   };
-
   render() {
-    /* the {this.onSubmit} below is without parentheses because we dont' want it
-     to be called on initial rendertime; we want to pass a reference on the
-     function so we can call it in the future
-     */
+    const p =
+      "Please input your maximum donation amount and a message below. \n    Merchants will bid to fulfill this gift. The Recipient will be\n    required to select one of the lowest three bids.";
     return (
       <div>
         <link
           rel="stylesheet"
           href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css"
         />
-        <h2>Finalize your Donation</h2>
-        <p>Recipient: {this.state.recipientAddress}</p>
-        <p>Recipient''s Request: {this.state.recipientMessage}</p>
-        Expiration Date: {this.state.expiry}
-        <p>
-          Please input your maximum donation amount and a message below.
-          Merchants will bid to fulfill this gift. The Recipient will be
-          required to select one of the lowest three bids.
-        </p>
-        <hr />
-        <form onSubmit={this.onSubmit}>
-          <h4>Enter details below</h4>
-          <div>
-            <label>Donation Amount: </label>
-            <input
-              name="value"
-              value={this.state.value}
-              onChange={event => this.setState({ value: event.target.value })}
-            />
+
+        <Card fluid>
+          <Card.Content header="Finalize your Donation" />
+          <Card.Content
+            description={"Recipient's Address :" + this.state.recipientAddress}
+            meta={"Recipient''s Request:" + this.state.recipientMessage}
+          />
+
+          <Card.Content description={p} />
+        </Card>
+
+        <Card fluid>
+          <Card.Content header={"Enter details Below"} />
+          <form onSubmit={this.onSubmit}>
             <div>
-              <label>Donor Message: </label>
-              <input
-                name="donorMsg"
-                value={this.state.donorMsg}
-                onChange={event =>
-                  this.setState({ donorMsg: event.target.value })
-                }
+              <Input
+                label="Donation Amount"
+                name="value"
+                value={this.state.value}
+                onChange={event => this.setState({ value: event.target.value })}
               />
+
+              <div>
+                <br />
+                <Input
+                  label="Donor Message"
+                  name="donorMsg"
+                  placeholder={this.state.donorMsg + "..."}
+                  onChange={event =>
+                    this.setState({ donorMsg: event.target.value })
+                  }
+                />
+              </div>
+              <br />
             </div>
-          </div>
-          <Button primary>Donate</Button>
-        </form>
-        <hr />
+            <Button fluid primary>
+              Donate
+            </Button>
+          </form>
+        </Card>
+
         <h1>{this.state.message}</h1>
         <p>{this.state.giftInstance}</p>
       </div>
     );
   }
 }
-
 export default Donate;
-
-//
-// <form
-//   className="commentForm"
-//   onSubmit={this.onSubmit}
-//   error={toString(!!this.state.errorMessage)}
-// >
-//   <input
-//     label="ether"
-//     value={this.state.value}
-//     onChange={(event) => this.setState({ value: event.target.value })}
-//   />
-//   <input type="submit" value="Donate" />
-//
-//   <div>{this.state.errorMessage}</div>
